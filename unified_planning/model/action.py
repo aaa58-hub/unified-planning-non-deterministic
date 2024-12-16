@@ -352,6 +352,46 @@ class InstantaneousAction(Action):
             up.model.effect.Effect(fluent_exp, value_exp, condition_exp, forall=forall)
         )
 
+    def add_effects(
+            self,
+            effects: Union[
+                Tuple[
+                    Union["up.model.fnode.FNode", "up.model.fluent.Fluent"],
+                    "up.model.expression.Expression",
+                    Union["up.model.expression.BoolExpression", None],
+                    Union[Iterable["up.model.variable.Variable"], None]
+                ],
+                List[
+                    Tuple[
+                        Union["up.model.fnode.FNode", "up.model.fluent.Fluent"],
+                        "up.model.expression.Expression",
+                        Union["up.model.expression.BoolExpression", None],
+                        Union[Iterable["up.model.variable.Variable"], None]
+                    ]
+                ]
+            ]
+    ):
+        # Check if the input is a single effect or a list of effects
+        if isinstance(effects, tuple):
+            effects = [effects]
+
+        # Coiche at random one of the effects
+        effect = random.choice(effects)
+
+        if len(effect) == 2:  # fluent and value provided
+            fluent, value = effect
+            condition = True
+            forall = tuple()
+        elif len(effect) == 3:  # fluent, value, condition provided
+            fluent, value, condition = effect
+            forall = tuple()
+        elif len(effect) == 4:  # all values provided
+            fluent, value, condition, forall = effect
+        else:
+            raise ValueError(f"Invalid effect tuple: {effect}. Expected 2, 3, or 4 elements.")
+
+        self.add_effect(fluent, value, condition, forall)
+
     def add_increase_effect(
         self,
         fluent: Union["up.model.fnode.FNode", "up.model.fluent.Fluent"],
